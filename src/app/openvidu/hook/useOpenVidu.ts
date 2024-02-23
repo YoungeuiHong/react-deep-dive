@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { PublisherProperties } from "openvidu-browser";
+import { PublisherProperties, Stream } from "openvidu-browser";
 import { OpenVidu, Publisher, Session, StreamManager } from "openvidu-browser";
 import { SessionEventHandler } from "@/app/openvidu/type";
 import { joinSession } from "@/app/openvidu/api";
@@ -60,6 +60,20 @@ function useOpenVidu({
         const subscriber = session.subscribe(event.stream, undefined);
         setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
       });
+
+      const streamDestroyedEventHandler = eventHandlers?.find(
+        (event) => event.type === "streamDestroyed",
+      )?.handler;
+
+      session.on("streamDestroyed", (event) => {
+        if (streamDestroyedEventHandler) {
+          streamDestroyedEventHandler(event);
+        }
+        setSubscribers((prevSubscribers) =>
+          deleteSubscriber(event.stream, prevSubscribers),
+        );
+      });
+
       return { ov, session, myStream };
     }
 
@@ -72,6 +86,9 @@ function useOpenVidu({
     myStream,
     subscribers,
   };
+}
+function deleteSubscriber(stream: Stream, subscribers: StreamManager[]) {
+  return subscribers.filter((subscriber) => subscriber.stream !== stream);
 }
 
 export default useOpenVidu;
