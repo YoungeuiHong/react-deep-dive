@@ -1,13 +1,20 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { PublisherProperties, Stream } from "openvidu-browser";
-import { OpenVidu, Publisher, Session, StreamManager } from "openvidu-browser";
+import type { SessionEventMap } from "openvidu-browser";
+import {
+  OpenVidu,
+  Publisher,
+  PublisherProperties,
+  Session,
+  Stream,
+  StreamManager,
+} from "openvidu-browser";
 import { SessionEventHandler } from "@/app/openvidu/type";
 import { joinSession } from "@/app/openvidu/api";
 
 interface OptionsType {
   sessionId: string;
   clientData?: any;
-  eventHandlers?: SessionEventHandler[];
+  eventHandlers?: SessionEventHandler<keyof SessionEventMap>[];
   publisherProperties?: PublisherProperties;
 }
 
@@ -62,7 +69,7 @@ function useOpenVidu({
 }
 
 function registerDefaultEventHandler(
-  eventHandlers: SessionEventHandler[],
+  eventHandlers: SessionEventHandler<keyof SessionEventMap>[],
   session: Session,
   setSubscribers: Dispatch<SetStateAction<StreamManager[]>>,
 ) {

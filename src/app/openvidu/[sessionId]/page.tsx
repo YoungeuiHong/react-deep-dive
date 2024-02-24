@@ -20,7 +20,7 @@ export default function OpenViduPage({
   const [leftUsers, setLeftUsers] = useState<string[]>([]);
 
   // streamCreated 이벤트 핸들러
-  const handleStreamCreated: SessionEventHandler = {
+  const handleStreamCreated: SessionEventHandler<"streamCreated"> = {
     type: "streamCreated",
     handler: (event) => {
       console.log("👋🏻 streamCreated 이벤트 발생");
@@ -28,13 +28,14 @@ export default function OpenViduPage({
   };
 
   // connectionDestroyed 이벤트 핸들러
-  const handleSessionDisconnected: SessionEventHandler = {
-    type: "connectionDestroyed",
-    handler: (event) => {
-      console.log("🔥 connectionDestroyed 이벤트 발생");
-      setLeftUsers((prev) => [...prev, parseUserName(event.connection.data)]);
-    },
-  };
+  const handleSessionDisconnected: SessionEventHandler<"connectionDestroyed"> =
+    {
+      type: "connectionDestroyed",
+      handler: (event) => {
+        console.log("🔥 connectionDestroyed 이벤트 발생");
+        setLeftUsers((prev) => [...prev, parseUserName(event.connection.data)]);
+      },
+    };
 
   // OpenVidu 연결
   const { myStream, subscribers } = useOpenVidu({

@@ -1,3 +1,4 @@
+import type { SessionEventMap } from "openvidu-browser";
 import {
   OpenVidu,
   Publisher,
@@ -21,7 +22,7 @@ interface Params {
   sessionId: string;
   ov: OpenVidu;
   session: Session;
-  eventHandlers?: SessionEventHandler[];
+  eventHandlers?: SessionEventHandler<keyof SessionEventMap>[];
   clientData?: any;
   publisherProperties?: PublisherProperties;
 }
@@ -53,7 +54,7 @@ export async function joinSession({
  */
 async function registerSessionEventHanlder(
   session: Session,
-  eventHandlers?: SessionEventHandler[],
+  eventHandlers?: SessionEventHandler<keyof SessionEventMap>[],
 ): Promise<void> {
   eventHandlers?.forEach((eventHandler) => {
     session.on(eventHandler.type, eventHandler.handler);
