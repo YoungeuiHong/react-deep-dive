@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PublisherProperties, Stream } from "openvidu-browser";
 import { OpenVidu, Publisher, Session, StreamManager } from "openvidu-browser";
 import { SessionEventHandler } from "@/app/openvidu/type";
@@ -21,7 +21,7 @@ interface ReturnType {
 function useOpenVidu({
   sessionId,
   clientData,
-  eventHandlers,
+  eventHandlers = [],
   publisherProperties,
 }: OptionsType): ReturnType {
   const [ov, setOv] = useState<OpenVidu>();
@@ -31,9 +31,10 @@ function useOpenVidu({
 
   // 세션 아이디가 변경될 때마다 세션에 다시 연결
   useEffect(() => {
-    async function init(sessionId: string): Promise<ReturnType> {
+    async function joinNewSession(sessionId: string) {
       const ov = new OpenVidu();
       const session = ov.initSession();
+      registerDefaultEventHandler(eventHandlers, session, setSubscribers);
       const myStream = await joinSession({
         sessionId,
         ov,
@@ -47,37 +48,9 @@ function useOpenVidu({
       setOv(ov);
       setSession(session);
       setMyStream(myStream);
-
-      // streamCreated 이벤트 등록
-      const streamCreatedEventHandler = eventHandlers?.find(
-        (event) => event.type === "streamCreated",
-      )?.handler;
-
-      session.on("streamCreated", (event) => {
-        if (streamCreatedEventHandler) {
-          streamCreatedEventHandler(event);
-        }
-        const subscriber = session.subscribe(event.stream, undefined);
-        setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-      });
-
-      const streamDestroyedEventHandler = eventHandlers?.find(
-        (event) => event.type === "streamDestroyed",
-      )?.handler;
-
-      session.on("streamDestroyed", (event) => {
-        if (streamDestroyedEventHandler) {
-          streamDestroyedEventHandler(event);
-        }
-        setSubscribers((prevSubscribers) =>
-          deleteSubscriber(event.stream, prevSubscribers),
-        );
-      });
-
-      return { ov, session, myStream };
     }
 
-    init(sessionId);
+    joinNewSession(sessionId);
   }, [sessionId]);
 
   return {
@@ -87,6 +60,40 @@ function useOpenVidu({
     subscribers,
   };
 }
+
+function registerDefaultEventHandler(
+  eventHandlers: SessionEventHandler[],
+  session: Session,
+  setSubscribers: Dispatch<SetStateAction<StreamManager[]>>,
+) {
+  // streamCreated 이벤트 핸들러 등록
+  const streamCreatedEventHandler = eventHandlers?.find(
+    (event) => event.type === "streamCreated",
+  )?.handler;
+
+  session.on("streamCreated", (event) => {
+    if (streamCreatedEventHandler) {
+      streamCreatedEventHandler(event);
+    }
+    const subscriber = session.subscribe(event.stream, undefined);
+    setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
+  });
+
+  // streamDestroyed 이벤트 핸들러 등록
+  const streamDestroyedEventHandler = eventHandlers?.find(
+    (event) => event.type === "streamDestroyed",
+  )?.handler;
+
+  session.on("streamDestroyed", (event) => {
+    if (streamDestroyedEventHandler) {
+      streamDestroyedEventHandler(event);
+    }
+    setSubscribers((prevSubscribers) =>
+      deleteSubscriber(event.stream, prevSubscribers),
+    );
+  });
+}
+
 function deleteSubscriber(stream: Stream, subscribers: StreamManager[]) {
   return subscribers.filter((subscriber) => subscriber.stream !== stream);
 }
