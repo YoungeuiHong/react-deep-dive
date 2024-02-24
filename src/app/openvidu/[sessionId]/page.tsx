@@ -45,10 +45,8 @@ export default function OpenViduPage({
 
   // ClientData 파싱
   const parseUserName = (data: string) => {
-    if (data) {
-      const user = parseClientData<User>(data);
-      return user?.userName ?? "";
-    }
+    const user = parseClientData<User>(data);
+    return user?.userName ?? "";
   };
 
   return (
@@ -61,6 +59,7 @@ export default function OpenViduPage({
       <div className="columns-3">
         {myStream && (
           <OpenViduVideo
+            key={myStream.id}
             userName={parseUserName(myStream.stream.connection.data)}
             stream={myStream}
           />
