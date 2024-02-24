@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { SessionEventHandler, User } from "@/app/openvidu/type";
-import { useOpenVidu } from "@/app/openvidu/hook";
-import { OpenViduVideo } from "@/app/openvidu/components";
+import { useMediaDevice, useOpenVidu } from "@/app/openvidu/hook";
+import { DeviceSelector, OpenViduVideo } from "@/app/openvidu/components";
 import { parseClientData } from "@/app/openvidu/utils";
 
 export default function OpenViduPage({
@@ -44,6 +44,16 @@ export default function OpenViduPage({
     eventHandlers: [handleSessionDisconnected, handleStreamCreated],
   });
 
+  // Device
+  const {
+    audioInputs,
+    videoInputs,
+    selectedAudio,
+    selectedVideo,
+    changeMic,
+    changeCamera,
+  } = useMediaDevice();
+
   // ClientData 파싱
   const parseUserName = (data: string) => {
     const user = parseClientData<User>(data);
@@ -57,6 +67,22 @@ export default function OpenViduPage({
           {`${leftUsers.join(", ")}님이 나갔습니다.`}
         </p>
       )}
+      <div className="flex float-left mb-2">
+        <DeviceSelector
+          id={"camera"}
+          label={"카메라"}
+          devices={videoInputs}
+          value={selectedVideo?.deviceId}
+          onChange={(event) => changeCamera(event.target.value)}
+        />
+        <DeviceSelector
+          id={"mic"}
+          label={"마이크"}
+          devices={audioInputs}
+          value={selectedAudio?.deviceId}
+          onChange={(event) => changeMic(event.target.value)}
+        />
+      </div>
       <div className="columns-3">
         {myStream && (
           <OpenViduVideo

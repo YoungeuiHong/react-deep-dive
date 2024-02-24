@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
+import { useAtom } from "jotai";
 import type { SessionEventMap } from "openvidu-browser";
 import {
   OpenVidu,
@@ -10,6 +11,12 @@ import {
 } from "openvidu-browser";
 import { SessionEventHandler } from "@/app/openvidu/type";
 import { joinSession } from "@/app/openvidu/api";
+import {
+  myStreamAtom,
+  openViduAtom,
+  sessionAtom,
+  subscribersAtom,
+} from "@/app/openvidu/store";
 
 interface OptionsType {
   sessionId: string;
@@ -31,10 +38,11 @@ function useOpenVidu({
   eventHandlers = [],
   publisherProperties,
 }: OptionsType): ReturnType {
-  const [ov, setOv] = useState<OpenVidu>();
-  const [session, setSession] = useState<Session>();
-  const [myStream, setMyStream] = useState<Publisher>();
-  const [subscribers, setSubscribers] = useState<StreamManager[]>([]);
+  const [ov, setOv] = useAtom<OpenVidu>(openViduAtom);
+  const [session, setSession] = useAtom<Session>(sessionAtom);
+  const [myStream, setMyStream] = useAtom<Publisher | undefined>(myStreamAtom);
+  const [subscribers, setSubscribers] =
+    useAtom<StreamManager[]>(subscribersAtom);
 
   // 세션 아이디가 변경될 때마다 세션에 다시 연결
   useEffect(() => {
