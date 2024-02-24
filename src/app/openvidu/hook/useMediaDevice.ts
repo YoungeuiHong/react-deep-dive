@@ -26,6 +26,8 @@ export default function useMediaDevice() {
         );
         setAudioInputs(audioDevices);
         setVideoInputs(videoDevices);
+        setSelectedAudio(audioDevices[0]);
+        setSelectedVideo(videoDevices[0]);
       }
     }
 
