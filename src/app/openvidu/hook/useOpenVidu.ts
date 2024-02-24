@@ -14,7 +14,7 @@ import { joinSession } from "@/app/openvidu/api";
 interface OptionsType {
   sessionId: string;
   clientData?: any;
-  eventHandlers?: SessionEventHandler<keyof SessionEventMap>[];
+  eventHandlers?: SessionEventHandler<any>[];
   publisherProperties?: PublisherProperties;
 }
 
