@@ -83,7 +83,7 @@ export default function OpenViduPage({
           onChange={(event) => changeMic(event.target.value)}
         />
       </div>
-      <div className="clear-both columns-3">
+      <div className="clear-both columns-1 md:columns-2">
         {myStream && (
           <OpenViduVideo
             key={myStream.id}
