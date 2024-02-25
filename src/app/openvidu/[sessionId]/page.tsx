@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { SessionEventHandler, User } from "@/app/openvidu/type";
+import type { SessionEventHandler, User } from "@/app/openvidu/constants";
 import { useMediaDevice, useOpenVidu } from "@/app/openvidu/hook";
 import { DeviceSelector, OpenViduVideo } from "@/app/openvidu/components";
 import { parseClientData } from "@/app/openvidu/utils";

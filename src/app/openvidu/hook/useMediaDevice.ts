@@ -24,8 +24,8 @@ interface ReturnType {
 }
 
 export default function useMediaDevice({
-  publisherProperties,
-}: OptionType): ReturnType {
+  publisherProperties = defaultPublisherProperties,
+}: OptionType = {}): ReturnType {
   // atom
   const ov = useAtomValue<OpenVidu>(openViduAtom);
   const session = useAtomValue<Session>(sessionAtom);
@@ -59,9 +59,8 @@ export default function useMediaDevice({
   // 카메라 / 마이크 선택이 변경될 경우 변경된 Publisher 스트림을 세션에 배포
   useEffect(() => {
     async function changeDevice() {
-      const properties = publisherProperties ?? defaultPublisherProperties;
       const newPublisher = await ov.initPublisherAsync(undefined, {
-        ...properties,
+        ...publisherProperties,
         videoSource: selectedVideo?.deviceId,
         audioSource: selectedAudio?.deviceId,
       });

@@ -98,7 +98,7 @@ async function connectToSession({
 async function initPublisher({
   ov,
   session,
-  publisherProperties,
+  publisherProperties = defaultPublisherProperties,
 }: {
   ov: OpenVidu;
   session: Session;
@@ -119,9 +119,10 @@ async function initPublisher({
       throw new Error("No video devices found.");
     }
 
-    const properties = publisherProperties ?? defaultPublisherProperties;
-
-    const newPublisher = await ov.initPublisherAsync(undefined, properties);
+    const newPublisher = await ov.initPublisherAsync(
+      undefined,
+      publisherProperties,
+    );
     session.publish(newPublisher);
     return newPublisher;
   } catch (error) {

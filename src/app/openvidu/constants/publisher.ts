@@ -1,4 +1,6 @@
-export const defaultPublisherProperties = {
+import type { PublisherProperties } from "openvidu-browser";
+
+export const defaultPublisherProperties: PublisherProperties = {
   audioSource: undefined,
   videoSource: undefined,
   publishAudio: true,
