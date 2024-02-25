@@ -20,7 +20,7 @@ export default function DeviceSelector({
     <form className="m-1 md:min-w-60">
       <label
         htmlFor={id}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white z-10"
+        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
       >
         {label}
       </label>
