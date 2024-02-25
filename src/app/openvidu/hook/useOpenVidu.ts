@@ -9,7 +9,7 @@ import {
   Stream,
   StreamManager,
 } from "openvidu-browser";
-import { SessionEventHandler } from "@/app/openvidu/type";
+import { SessionEventHandler } from "@/app/openvidu/constants";
 import { joinSession } from "@/app/openvidu/api";
 import {
   myStreamAtom,

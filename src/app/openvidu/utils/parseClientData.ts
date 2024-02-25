@@ -1,5 +1,5 @@
 import parseStringToType from "@/app/openvidu/utils/parseStringToType";
-import { ConnectionMetaData } from "@/app/openvidu/type";
+import type { ConnectionMetaData } from "@/app/openvidu/constants";
 
 export default function parseClientData<T>(data: string): T | undefined {
   if (!data) {
