@@ -68,6 +68,20 @@ function useOpenVidu({
     joinNewSession(sessionId);
   }, [sessionId]);
 
+  // 페이지를 벗어날 때 세션 연결 해제
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      session.disconnect();
+      event.returnValue = true;
+    };
+
+    window.addEventListener("beforeunload", beforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnload);
+    };
+  }, []);
+
   return {
     ov,
     session,
