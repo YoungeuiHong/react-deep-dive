@@ -67,8 +67,8 @@ export default function useMediaDevice({
       if (myStream) {
         await session.unpublish(myStream);
       }
-      setMyStream(newPublisher);
       await session.publish(newPublisher);
+      setMyStream(newPublisher);
     }
 
     changeDevice();
