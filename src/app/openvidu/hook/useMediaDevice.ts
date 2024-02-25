@@ -27,8 +27,8 @@ export default function useMediaDevice({
   publisherProperties = defaultPublisherProperties,
 }: OptionType = {}): ReturnType {
   // atom
-  const ov = useAtomValue<OpenVidu>(openViduAtom);
-  const session = useAtomValue<Session>(sessionAtom);
+  const ov = useAtomValue<OpenVidu | undefined>(openViduAtom);
+  const session = useAtomValue<Session | undefined>(sessionAtom);
   const [myStream, setMyStream] = useAtom<Publisher | undefined>(myStreamAtom);
   // state
   const [audioInputs, setAudioInputs] = useState<Device[]>([]);
@@ -59,16 +59,18 @@ export default function useMediaDevice({
   // 카메라 / 마이크 선택이 변경될 경우 변경된 Publisher 스트림을 세션에 배포
   useEffect(() => {
     async function changeDevice() {
-      const newPublisher = await ov.initPublisherAsync(undefined, {
-        ...publisherProperties,
-        videoSource: selectedVideo?.deviceId,
-        audioSource: selectedAudio?.deviceId,
-      });
-      if (myStream) {
-        await session.unpublish(myStream);
+      if (ov && session) {
+        const newPublisher = await ov.initPublisherAsync(undefined, {
+          ...publisherProperties,
+          videoSource: selectedVideo?.deviceId,
+          audioSource: selectedAudio?.deviceId,
+        });
+        if (myStream) {
+          await session.unpublish(myStream);
+        }
+        await session.publish(newPublisher);
+        setMyStream(newPublisher);
       }
-      await session.publish(newPublisher);
-      setMyStream(newPublisher);
     }
 
     changeDevice();

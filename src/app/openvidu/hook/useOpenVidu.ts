@@ -38,8 +38,8 @@ function useOpenVidu({
   eventHandlers = [],
   publisherProperties,
 }: OptionsType): ReturnType {
-  const [ov, setOv] = useAtom<OpenVidu>(openViduAtom);
-  const [session, setSession] = useAtom<Session>(sessionAtom);
+  const [ov, setOv] = useAtom<OpenVidu | undefined>(openViduAtom);
+  const [session, setSession] = useAtom<Session | undefined>(sessionAtom);
   const [myStream, setMyStream] = useAtom<Publisher | undefined>(myStreamAtom);
   const [subscribers, setSubscribers] =
     useAtom<StreamManager[]>(subscribersAtom);
@@ -71,7 +71,13 @@ function useOpenVidu({
   // 페이지를 벗어날 때 세션 연결 해제
   useEffect(() => {
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      session.disconnect();
+      // 세션 연결 해제
+      session?.disconnect();
+      // atom 초기화
+      setOv(undefined);
+      setSession(undefined);
+      setMyStream(undefined);
+      setSubscribers([]);
       event.returnValue = true;
     };
 
