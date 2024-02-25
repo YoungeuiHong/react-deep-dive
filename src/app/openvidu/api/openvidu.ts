@@ -5,7 +5,8 @@ import {
   PublisherProperties,
   Session,
 } from "openvidu-browser";
-import type { SessionEventHandler } from "@/app/openvidu/type";
+import { defaultPublisherProperties } from "@/app/openvidu/constants";
+import type { SessionEventHandler } from "@/app/openvidu/constants";
 import { createOpenViduConnection } from "@/app/openvidu/api/connection";
 import { createOpenViduSession } from "@/app/openvidu/api/session";
 
@@ -118,16 +119,7 @@ async function initPublisher({
       throw new Error("No video devices found.");
     }
 
-    const properties = publisherProperties ?? {
-      audioSource: undefined,
-      videoSource: videoDevices[0].deviceId,
-      publishAudio: true,
-      publishVideo: true,
-      resolution: "640x480",
-      frameRate: 30,
-      insertMode: "APPEND",
-      mirror: false,
-    };
+    const properties = publisherProperties ?? defaultPublisherProperties;
 
     const newPublisher = await ov.initPublisherAsync(undefined, properties);
     session.publish(newPublisher);

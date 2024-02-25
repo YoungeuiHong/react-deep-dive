@@ -1,12 +1,34 @@
 import { useEffect, useState } from "react";
-import { useAtom } from "jotai";
-import { Device, OpenVidu, Publisher, Session } from "openvidu-browser";
+import { useAtom, useAtomValue } from "jotai";
+import {
+  Device,
+  OpenVidu,
+  Publisher,
+  PublisherProperties,
+  Session,
+} from "openvidu-browser";
 import { myStreamAtom, openViduAtom, sessionAtom } from "@/app/openvidu/store";
+import { defaultPublisherProperties } from "@/app/openvidu/constants";
 
-export default function useMediaDevice() {
+interface OptionType {
+  publisherProperties?: PublisherProperties;
+}
+
+interface ReturnType {
+  audioInputs: Device[];
+  videoInputs: Device[];
+  selectedAudio: Device | undefined;
+  selectedVideo: Device | undefined;
+  changeMic: (deviceId: string) => void;
+  changeCamera: (deviceId: string) => void;
+}
+
+export default function useMediaDevice({
+  publisherProperties,
+}: OptionType): ReturnType {
   // atom
-  const [ov, setOv] = useAtom<OpenVidu>(openViduAtom);
-  const [session, setSession] = useAtom<Session>(sessionAtom);
+  const ov = useAtomValue<OpenVidu>(openViduAtom);
+  const session = useAtomValue<Session>(sessionAtom);
   const [myStream, setMyStream] = useAtom<Publisher | undefined>(myStreamAtom);
   // state
   const [audioInputs, setAudioInputs] = useState<Device[]>([]);
@@ -32,22 +54,22 @@ export default function useMediaDevice() {
     }
 
     init();
-  }, [ov]);
+  }, [ov, session]);
 
   // 카메라 / 마이크 선택이 변경될 경우 변경된 Publisher 스트림을 세션에 배포
   useEffect(() => {
     async function changeDevice() {
-      const newPublisher = ov.initPublisher(undefined, {
+      const properties = publisherProperties ?? defaultPublisherProperties;
+      const newPublisher = await ov.initPublisherAsync(undefined, {
+        ...properties,
         videoSource: selectedVideo?.deviceId,
         audioSource: selectedAudio?.deviceId,
-        publishAudio: true,
-        publishVideo: true,
       });
       if (myStream) {
         await session.unpublish(myStream);
       }
-      await session.publish(newPublisher);
       setMyStream(newPublisher);
+      await session.publish(newPublisher);
     }
 
     changeDevice();
