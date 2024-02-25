@@ -19,6 +19,7 @@ import { registerDefaultEventHandler } from "@/app/openvidu/utils";
 
 interface OptionsType {
   sessionId: string;
+  connect: boolean;
   clientData?: any;
   eventHandlers?: SessionEventHandler<any>[];
   publisherProperties?: PublisherProperties;
@@ -33,6 +34,7 @@ interface ReturnType {
 
 function useOpenVidu({
   sessionId,
+  connect,
   clientData,
   eventHandlers = [],
   publisherProperties,
@@ -45,28 +47,30 @@ function useOpenVidu({
 
   // 세션 아이디가 변경될 때마다 세션에 다시 연결
   useEffect(() => {
-    async function joinNewSession(sessionId: string) {
-      const ov = new OpenVidu();
-      const session = ov.initSession();
-      // 기본 이벤트 핸들러 등록 (Stream 추가 / 제거)
-      registerDefaultEventHandler(eventHandlers, session, setSubscribers);
-      const myStream = await joinSession({
-        sessionId,
-        ov,
-        session,
-        eventHandlers,
-        clientData,
-        publisherProperties,
-      });
+    async function joinNewSession() {
+      if (sessionId && connect) {
+        const ov = new OpenVidu();
+        const session = ov.initSession();
+        // 기본 이벤트 핸들러 등록 (Stream 추가 / 제거)
+        registerDefaultEventHandler(eventHandlers, session, setSubscribers);
+        const myStream = await joinSession({
+          sessionId,
+          ov,
+          session,
+          eventHandlers,
+          clientData,
+          publisherProperties,
+        });
 
-      // 상태 업데이트
-      setOv(ov);
-      setSession(session);
-      setMyStream(myStream);
+        // 상태 업데이트
+        setOv(ov);
+        setSession(session);
+        setMyStream(myStream);
+      }
     }
 
-    joinNewSession(sessionId);
-  }, [sessionId]);
+    joinNewSession();
+  }, [sessionId, connect]);
 
   // 페이지를 벗어날 때 세션 연결 해제
   useEffect(() => {
