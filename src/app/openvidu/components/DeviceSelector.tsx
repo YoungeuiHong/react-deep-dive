@@ -17,10 +17,10 @@ export default function DeviceSelector({
   devices,
 }: Props) {
   return (
-    <form className="m-1 min-w-60">
+    <form className="m-1 md:min-w-60">
       <label
         htmlFor={id}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white z-10"
       >
         {label}
       </label>
