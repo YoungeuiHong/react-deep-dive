@@ -1,7 +1,13 @@
+import { Button } from "@mui/material";
+
 export default function Home() {
+  const onClickVibrate = () => {
+    navigator.vibrate(200);
+  };
+
   return (
-    <main>
-      <h1>Home</h1>
-    </main>
+    <>
+      <Button onClick={onClickVibrate}>Click!</Button>
+    </>
   );
 }
