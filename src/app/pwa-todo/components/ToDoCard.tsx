@@ -1,12 +1,28 @@
 import { Checkbox, Stack, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { ToDo } from "@/app/pwa-todo/types";
+import { ToDo, UpdateToDoInput } from "@/app/pwa-todo/types";
+import dayjs from "dayjs";
+import { ChangeEvent } from "react";
+import { updateToDoStatus } from "@/app/pwa-todo/action";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   todo: ToDo;
 }
 
 export default function ToDoCard({ todo }: Props) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (newToDo: UpdateToDoInput) =>
+      updateToDoStatus(newToDo.id, newToDo.done),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+  });
+
+  const onChangeDone = async (e: ChangeEvent<HTMLInputElement>) => {
+    mutation.mutate({ id: todo.id, done: e.target.checked });
+  };
+
   return (
     <Stack
       direction={"row"}
@@ -21,7 +37,7 @@ export default function ToDoCard({ todo }: Props) {
     >
       <Stack direction={"column"}>
         <Typography variant={"caption"} color={grey["600"]}>
-          {todo.due}
+          {dayjs(todo.due).format("A h:mm")}
         </Typography>
         <Typography variant={"body1"}>{todo.task}</Typography>
       </Stack>
@@ -32,6 +48,7 @@ export default function ToDoCard({ todo }: Props) {
             color: "#eb8291",
           },
         }}
+        onChange={onChangeDone}
       />
     </Stack>
   );

@@ -8,7 +8,9 @@ import GreyButton from "@/app/pwa-todo/components/GreyButton";
 import { grey } from "@mui/material/colors";
 import { useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { sql } from "@vercel/postgres";
+import { createToDo } from "@/app/pwa-todo/action";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CreateToDoInput } from "@/app/pwa-todo/types";
 
 interface Props {
   open: boolean;
@@ -29,14 +31,18 @@ const Puller = styled("div")(({ theme }) => ({
 export default function AddDrawer({ open, onOpen, onClose }: Props) {
   const [task, setTask] = useState<string>("");
   const [due, setDue] = useState<Dayjs | null>(dayjs());
+  const queryClient = useQueryClient();
 
   const onClickAdd = async () => {
-    console.log(due?.toISOString());
-    await sql`
-      INSERT INTO pwa_todo (task, due, done)
-      VALUES (${task}, ${due?.toISOString() ?? ""}, false)
-    `;
+    mutation.mutate({ task, due: due?.toISOString() ?? "" });
+    onClose();
   };
+
+  const mutation = useMutation({
+    mutationFn: (newToDo: CreateToDoInput) =>
+      createToDo(newToDo.task, newToDo.due),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["todos"] }),
+  });
 
   return (
     <SwipeableDrawer
@@ -59,7 +65,11 @@ export default function AddDrawer({ open, onOpen, onClose }: Props) {
       >
         <Box>
           <Puller />
-          <TextField label={"할 일"} sx={{ width: "100%", my: 1 }} />
+          <TextField
+            label={"할 일"}
+            sx={{ width: "100%", my: 1 }}
+            onChange={(e) => setTask(e.target.value)}
+          />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={["TimePicker"]}>
               <TimePicker

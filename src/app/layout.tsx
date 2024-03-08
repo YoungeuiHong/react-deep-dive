@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import "./globals.css";
 import { CssBaseline } from "@mui/material";
+import { ReactQueryProvider } from "@/components/provider/ReactQueryProvider";
 
 const nanumGothic = Nanum_Gothic({
   weight: ["400", "700", "800"],
@@ -22,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={nanumGothic.className}>
         <CssBaseline />
-        {children}
+        <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>
   );

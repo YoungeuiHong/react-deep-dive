@@ -1,16 +1,16 @@
 "use client";
-import { useState } from "react";
 import { Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
-import { ToDo } from "@/app/pwa-todo/types";
 import { Container } from "@mui/system";
 import ToDoBox from "@/app/pwa-todo/components/ToDoBox";
+import { getAllToDo } from "@/app/pwa-todo/action";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PwaToDoPage() {
-  const [toDos, setToDos] = useState<ToDo[]>([
-    { id: 1, task: "기술 블로그 글 쓰기", done: false, due: "PM 05:30" },
-    { id: 2, task: "밥 맛있게 먹기", done: true, due: "PM 05:30" },
-  ]);
+  const { data: toDos } = useQuery({
+    queryKey: ["todos"],
+    queryFn: () => getAllToDo(),
+  });
 
   return (
     <Container
@@ -24,7 +24,7 @@ export default function PwaToDoPage() {
       >
         TODO
       </Typography>
-      <ToDoBox toDos={toDos} />
+      {toDos && <ToDoBox toDos={toDos} />}
     </Container>
   );
 }

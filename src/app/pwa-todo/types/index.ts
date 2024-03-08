@@ -4,3 +4,13 @@ export interface ToDo {
   due: string;
   done: boolean;
 }
+
+export interface CreateToDoInput {
+  task: string;
+  due: string;
+}
+
+export interface UpdateToDoInput {
+  id: number;
+  done: boolean;
+}
