@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Nanum_Gothic } from "next/font/google";
 import "./globals.css";
+import { CssBaseline } from "@mui/material";
 
-const inter = Inter({ subsets: ["latin"] });
+const nanumGothic = Nanum_Gothic({
+  weight: ["400", "700", "800"],
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "React Deep Dive",
@@ -16,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={nanumGothic.className}>
+        <CssBaseline />
+        {children}
+      </body>
     </html>
   );
 }

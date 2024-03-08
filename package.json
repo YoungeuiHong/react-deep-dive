@@ -12,8 +12,11 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.12",
+    "@mui/x-date-pickers": "^6.19.6",
+    "@vercel/postgres": "^0.7.2",
     "axios": "^1.6.7",
     "axios-retry": "^4.0.0",
+    "dayjs": "^1.11.10",
     "jotai": "^2.6.5",
     "next": "14.1.0",
     "openvidu-browser": "^2.29.1",
@@ -29,7 +32,6 @@
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
     "prettier": "3.2.5",
-    "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
 }
