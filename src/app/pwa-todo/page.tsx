@@ -49,11 +49,20 @@ export default function PwaToDoPage() {
         Permission
       </Button>
       <Button
-        onClick={() => {
-          const n = new Notification("TODO 알림", {
-            body: "오늘의 할 일 까먹지 마세요",
-            icon: "/app-icon/ios/192.png",
-          });
+        onClick={async () => {
+          const registration = await navigator.serviceWorker.getRegistration();
+
+          if (registration && "showNotification" in registration) {
+            registration.showNotification("TODO 알림", {
+              body: "오늘의 할 일 까먹지 마세요",
+              icon: "/app-icon/ios/192.png",
+            });
+          } else {
+            const n = new Notification("TODO 알림", {
+              body: "오늘의 할 일 까먹지 마세요",
+              icon: "/app-icon/ios/192.png",
+            });
+          }
         }}
       >
         Notification
