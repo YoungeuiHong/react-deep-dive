@@ -1,16 +1,31 @@
 "use client";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import { Container } from "@mui/system";
 import ToDoBox from "@/app/pwa-todo/components/ToDoBox";
 import { getAllToDo } from "@/app/pwa-todo/action";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function PwaToDoPage() {
   const { data: toDos } = useQuery({
     queryKey: ["todos"],
     queryFn: () => getAllToDo(),
   });
+
+  useEffect(() => {
+    console.log("알람 허용 여부: ", Notification.permission);
+
+    navigator.serviceWorker
+      .register("/pwa-todo/sw.js")
+      .then((registration) =>
+        console.log(
+          "🔥 Service Worker registration successful with scope: ",
+          registration.scope,
+        ),
+      )
+      .catch((err) => console.log("Service Worker registration failed: ", err));
+  }, []);
 
   return (
     <Container
@@ -24,6 +39,25 @@ export default function PwaToDoPage() {
       >
         TODO
       </Typography>
+      <Button
+        onClick={() => {
+          Notification.requestPermission().then((result) => {
+            console.log("허락됐나?", result);
+          });
+        }}
+      >
+        Permission
+      </Button>
+      <Button
+        onClick={() => {
+          const n = new Notification("TODO 알림", {
+            body: "오늘의 할 일 까먹지 마세요",
+            icon: "/app-icon/ios/192.png",
+          });
+        }}
+      >
+        Notification
+      </Button>
       {toDos && <ToDoBox toDos={toDos} />}
     </Container>
   );
