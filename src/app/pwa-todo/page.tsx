@@ -50,13 +50,9 @@ export default function PwaToDoPage() {
       </Button>
       <Button
         onClick={() => {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification("Vibration Sample", {
-              body: "Buzz! Buzz!",
-              icon: "../images/touch/chrome-touch-icon-192x192.png",
-              vibrate: [200, 100, 200, 100, 200, 100, 200],
-              tag: "vibration-sample",
-            });
+          const n = new Notification("TODO 알림", {
+            body: "오늘의 할 일 까먹지 마세요",
+            icon: "/app-icon/ios/192.png",
           });
         }}
       >
