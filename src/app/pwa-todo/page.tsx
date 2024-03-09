@@ -13,19 +13,19 @@ export default function PwaToDoPage() {
     queryFn: () => getAllToDo(),
   });
 
-  useEffect(() => {
-    console.log("알람 허용 여부: ", Notification.permission);
-
-    navigator.serviceWorker
-      .register("/pwa-todo/sw.js")
-      .then((registration) =>
-        console.log(
-          "🔥 Service Worker registration successful with scope: ",
-          registration.scope,
-        ),
-      )
-      .catch((err) => console.log("Service Worker registration failed: ", err));
-  }, []);
+  // useEffect(() => {
+  //   console.log("알람 허용 여부: ", Notification.permission);
+  //
+  //   navigator.serviceWorker
+  //     .register("/pwa-todo/sw.js")
+  //     .then((registration) =>
+  //       console.log(
+  //         "🔥 Service Worker registration successful with scope: ",
+  //         registration.scope,
+  //       ),
+  //     )
+  //     .catch((err) => console.log("Service Worker registration failed: ", err));
+  // }, []);
 
   return (
     <Container
@@ -50,9 +50,13 @@ export default function PwaToDoPage() {
       </Button>
       <Button
         onClick={() => {
-          const n = new Notification("TODO 알림", {
-            body: "오늘의 할 일 까먹지 마세요",
-            icon: "/app-icon/ios/192.png",
+          navigator.serviceWorker.ready.then((registration) => {
+            registration.showNotification("Vibration Sample", {
+              body: "Buzz! Buzz!",
+              icon: "../images/touch/chrome-touch-icon-192x192.png",
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+              tag: "vibration-sample",
+            });
           });
         }}
       >
