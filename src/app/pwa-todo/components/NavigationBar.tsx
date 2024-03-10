@@ -20,12 +20,15 @@ export default function NavigationBar() {
   return (
     <Paper
       sx={{
-        backgroundColor: "transparent",
+        // backgroundColor: "transparent",
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
         width: "100%",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        pb: 2,
       }}
     >
       <BottomNavigation
@@ -35,9 +38,11 @@ export default function NavigationBar() {
         sx={{
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
-          border: "1px solid #eeeeee",
+          borderTop: "1px solid #eeeeee",
+          borderLeft: "1px solid #eeeeee",
+          borderRight: "1px solid #eeeeee",
           px: 4,
-          py: 0.5,
+          pt: 0.5,
           "& .MuiBottomNavigationAction-root, svg": {
             fontSize: 28,
             color: grey[500],
