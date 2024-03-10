@@ -1,60 +1,33 @@
 "use client";
 import { SyntheticEvent, useState } from "react";
-import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { BottomNavigationAction } from "@mui/material";
+import { useMediaQuery } from "@mui/system";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import { useRouter } from "next/navigation";
-import { grey, red } from "@mui/material/colors";
-import { useMediaQuery } from "@mui/system";
+import { StyledNavigationPaper } from "./NavigationPaper";
+import { StyledBottomNavigation } from "./BottomNavigation";
 
 export default function NavigationBar() {
   const router = useRouter();
-  const [value, setValue] = useState("home");
+  const [tab, setTab] = useState("home");
 
+  // 모바일 사이트에서 접속했는지 / 앱에서 접속했는지 여부
   const isStandalone = useMediaQuery("(display-mode:standalone)");
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
-    setValue(newValue);
+    setTab(newValue);
   };
 
   return (
-    <Paper
-      sx={{
-        // backgroundColor: "transparent",
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        pb: isStandalone ? 3 : 0,
-      }}
-    >
-      <BottomNavigation
-        value={value}
+    <StyledNavigationPaper isStandalone={isStandalone}>
+      <StyledBottomNavigation
+        value={tab}
         onChange={handleChange}
         showLabels={false}
-        sx={{
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          borderTop: "1px solid #eeeeee",
-          borderLeft: "1px solid #eeeeee",
-          borderRight: "1px solid #eeeeee",
-          px: 4,
-          py: 0.5,
-          "& .MuiBottomNavigationAction-root, svg": {
-            fontSize: 28,
-            color: grey[500],
-          },
-          ".Mui-selected svg": {
-            fontSize: 28,
-            color: red[300],
-          },
-        }}
       >
         <BottomNavigationAction
           value="home"
@@ -82,7 +55,7 @@ export default function NavigationBar() {
           icon={<SettingsOutlinedIcon />}
           onClick={() => router.push("/setting")}
         />
-      </BottomNavigation>
-    </Paper>
+      </StyledBottomNavigation>
+    </StyledNavigationPaper>
   );
 }
