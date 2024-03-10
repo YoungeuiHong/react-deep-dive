@@ -28,7 +28,6 @@ export default function NavigationBar() {
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        pb: 2,
       }}
     >
       <BottomNavigation
@@ -42,7 +41,7 @@ export default function NavigationBar() {
           borderLeft: "1px solid #eeeeee",
           borderRight: "1px solid #eeeeee",
           px: 4,
-          pt: 0.5,
+          py: 0.5,
           "& .MuiBottomNavigationAction-root, svg": {
             fontSize: 28,
             color: grey[500],
