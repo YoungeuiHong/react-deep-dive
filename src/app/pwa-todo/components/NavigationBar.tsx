@@ -28,7 +28,7 @@ export default function NavigationBar() {
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        pb: 3,
+        pb: 2,
       }}
     >
       <BottomNavigation

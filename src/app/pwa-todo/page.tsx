@@ -61,21 +61,21 @@ export default function PwaToDoPage() {
     };
   }
 
-  useEffect(() => {
-    console.log("알람 허용 여부: ", Notification.permission);
-
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        setSwReg(registration);
-
-        console.log(
-          "🔥 Service Worker registration successful with scope: ",
-          registration.scope,
-        );
-      })
-      .catch((err) => console.log("Service Worker registration failed: ", err));
-  }, []);
+  // useEffect(() => {
+  //   console.log("알람 허용 여부: ", Notification.permission);
+  //
+  //   navigator.serviceWorker
+  //     .register("/sw.js")
+  //     .then((registration) => {
+  //       setSwReg(registration);
+  //
+  //       console.log(
+  //         "🔥 Service Worker registration successful with scope: ",
+  //         registration.scope,
+  //       );
+  //     })
+  //     .catch((err) => console.log("Service Worker registration failed: ", err));
+  // }, []);
 
   function notification() {
     if (swReg) {
