@@ -13,19 +13,19 @@ export default function PwaToDoPage() {
     queryFn: () => getAllToDo(),
   });
 
-  // useEffect(() => {
-  //   console.log("알람 허용 여부: ", Notification.permission);
-  //
-  //   navigator.serviceWorker
-  //     .register("/pwa-todo/sw.js")
-  //     .then((registration) =>
-  //       console.log(
-  //         "🔥 Service Worker registration successful with scope: ",
-  //         registration.scope,
-  //       ),
-  //     )
-  //     .catch((err) => console.log("Service Worker registration failed: ", err));
-  // }, []);
+  useEffect(() => {
+    console.log("알람 허용 여부: ", Notification.permission);
+
+    navigator.serviceWorker
+      .register("/pwa-todo/sw.js")
+      .then((registration) =>
+        console.log(
+          "🔥 Service Worker registration successful with scope: ",
+          registration.scope,
+        ),
+      )
+      .catch((err) => console.log("Service Worker registration failed: ", err));
+  }, []);
 
   return (
     <Container
