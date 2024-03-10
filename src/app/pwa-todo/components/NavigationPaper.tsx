@@ -1,11 +1,12 @@
-import { Paper, styled } from "@mui/material";
+import { Paper } from "@mui/material";
+import { styled } from "@mui/system";
 
 interface Props {
   isStandalone: boolean;
 }
 
 export const StyledNavigationPaper = styled(Paper)<Props>(
-  ({ isStandalone, theme }) => ({
+  ({ isStandalone }) => ({
     position: "fixed",
     bottom: 0,
     left: 0,
