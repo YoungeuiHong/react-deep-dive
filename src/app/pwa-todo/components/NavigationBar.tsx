@@ -1,7 +1,7 @@
 "use client";
 import { SyntheticEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BottomNavigationAction } from "@mui/material";
+import { BottomNavigationAction, Paper } from "@mui/material";
 import { useMediaQuery } from "@mui/system";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
@@ -23,7 +23,18 @@ export default function NavigationBar() {
   };
 
   return (
-    <StyledNavigationPaper isStandalone={isStandalone}>
+    <Paper
+      sx={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: "100%",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        pb: isStandalone ? 3 : 0,
+      }}
+    >
       <StyledBottomNavigation
         value={tab}
         onChange={handleChange}
@@ -56,6 +67,6 @@ export default function NavigationBar() {
           onClick={() => router.push("/setting")}
         />
       </StyledBottomNavigation>
-    </StyledNavigationPaper>
+    </Paper>
   );
 }
