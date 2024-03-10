@@ -7,6 +7,7 @@ import { getAllToDo } from "@/app/pwa-todo/action";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ToDo } from "@/app/pwa-todo/types";
+import NavigationBar from "@/app/pwa-todo/components/NavigationBar";
 
 export default function PwaToDoPage() {
   const [swReg, setSwReg] = useState<ServiceWorkerRegistration>();
@@ -129,6 +130,7 @@ export default function PwaToDoPage() {
         Notification
       </Button>
       {toDos && <ToDoBox toDos={toDos} />}
+      <NavigationBar />
     </Container>
   );
 }
