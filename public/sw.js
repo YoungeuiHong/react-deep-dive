@@ -42,46 +42,58 @@ self.addEventListener("activate", () => {
 //
 // fetchEvent();
 
-// main.js
+function periodicCheck() {
+  const request = indexedDB.open("pwa-db");
 
-// service-worker.js
-function sendMessage() {
-  const dbName = "myDatabase";
-  const dbVersion = 1;
-  const request = indexedDB.open(dbName, dbVersion);
+  request.onerror = function (event) {
+    console.error("IndexedDB를 열 수 없습니다.");
+  };
+
   request.onsuccess = function (event) {
-    // @ts-ignore
     const db = event.target.result;
-    const transaction = db.transaction(["people"], "readwrite");
-    const objectStore = transaction.objectStore("people");
-    const request = objectStore.get(1);
-    request.onerror = function (event) {
-      // Handle errors!
-    };
+
+    // 트랜잭션 시작
+    const transaction = db.transaction(["todo"], "readonly");
+    const objectStore = transaction.objectStore("todo");
+
+    // 현재 시간
+    const currentTime = new Date();
+
+    // 인덱스 생성
+    const dueIndex = objectStore.index("due-index");
+
+    // 인덱스를 사용하여 쿼리 실행 (현재 시간으로부터 1분 내의 범위)
+    const range = IDBKeyRange.bound(
+      new Date(currentTime.getTime() - 60 * 1000),
+      currentTime,
+    );
+
+    const request = dueIndex.openCursor(range);
+
     request.onsuccess = function (event) {
-      // Do something with the request.result!
-      console.log("🙀 오 된다!!", event.target.result.name);
+      const cursor = event.target.result;
+      if (cursor) {
+        // 알림 시간에 해당되는 할 일이 있는 경우 알림을 보냄
+        navigator.serviceWorker.ready
+          .then(async (registration) => {
+            const options = {
+              body: cursor.value.task,
+              icon: "/app-icon/ios/192.png",
+            };
+            registration.showNotification(
+              "🔔 오늘의 할 일 잊지 마세요!",
+              options,
+            );
+          })
+          .catch((e) => console.error(e));
+        cursor.continue();
+      }
+    };
+
+    transaction.oncomplete = function (event) {
+      db.close();
     };
   };
-  // console.log("🤖", localStorage.getItem("message"));
-}
-
-self.addEventListener("sync", (event) => {
-  if (event.tag === "send-message") {
-    event.waitUntil(sendMessage());
-  }
-});
-
-function periodicCheck() {
-  navigator.serviceWorker.ready
-    .then(async (registration) => {
-      const options = {
-        body: "오늘의 할 일 잊지 마세요.",
-        icon: "/app-icon/ios/192.png",
-      };
-      registration.showNotification("🔔 PWA TODO", options);
-    })
-    .catch((e) => console.error(e));
 }
 
 // 1분마다 알려야 할 알림이 있는지 체크

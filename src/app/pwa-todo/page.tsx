@@ -6,6 +6,7 @@ import ToDoBox from "@/app/pwa-todo/components/ToDoBox";
 import { getAllToDo } from "@/app/pwa-todo/action";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { ToDo } from "@/app/pwa-todo/types";
 
 export default function PwaToDoPage() {
   const [swReg, setSwReg] = useState<ServiceWorkerRegistration>();
@@ -14,6 +15,50 @@ export default function PwaToDoPage() {
     queryKey: ["todos"],
     queryFn: () => getAllToDo(),
   });
+
+  useEffect(() => {
+    saveDB();
+  }, [toDos]);
+
+  function saveDB() {
+    const dbName = "pwa-db";
+    const request = indexedDB.open(dbName);
+
+    // 데이터베이스가 열릴 때 실행되는 이벤트 핸들러
+    request.onupgradeneeded = function (event) {
+      // @ts-ignore
+      const db = event.target.result;
+
+      // 객체 저장소 (Object Store) 생성
+      const objectStore = db.createObjectStore("todo", {
+        keyPath: "id",
+        autoIncrement: true,
+      });
+
+      objectStore.createIndex("due-index", "due_date");
+
+      objectStore.transaction.oncomplete = function (event) {
+        // Store values in the newly created objectStore.
+        var customerObjectStore = db
+          .transaction("todo", "readwrite")
+          .objectStore("todo");
+      };
+    };
+
+    request.onsuccess = function (event) {
+      // @ts-ignore
+      const db = event.target.result;
+      const transaction = db.transaction(["todo"], "readwrite");
+      const objectStore = transaction.objectStore("todo");
+
+      toDos?.forEach((todo: ToDo) => {
+        objectStore.put({
+          ...todo,
+          due_date: new Date(todo.due),
+        });
+      });
+    };
+  }
 
   useEffect(() => {
     console.log("알람 허용 여부: ", Notification.permission);
