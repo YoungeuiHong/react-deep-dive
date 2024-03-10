@@ -27,6 +27,18 @@ export default function PwaToDoPage() {
       .catch((err) => console.log("Service Worker registration failed: ", err));
   }, []);
 
+  function randomNotification() {
+    const notifTitle = "TODO 알림";
+    const notifBody = `오늘의 할 일 까먹지 마세요`;
+    const notifImg = `/public/app-icon/ios/192.png`;
+    const options = {
+      body: notifBody,
+      icon: notifImg,
+    };
+    new Notification(notifTitle, options);
+    setTimeout(randomNotification, 3000);
+  }
+
   return (
     <Container
       maxWidth={"sm"}
@@ -42,7 +54,9 @@ export default function PwaToDoPage() {
       <Button
         onClick={() => {
           Notification.requestPermission().then((result) => {
-            console.log("허락됐나?", result);
+            if (result === "granted") {
+              randomNotification();
+            }
           });
         }}
       >
