@@ -19,9 +19,10 @@ export default function PwaToDoPage() {
     console.log("알람 허용 여부: ", Notification.permission);
 
     navigator.serviceWorker
-      .register("/pwa-todo/sw.js")
+      .register("/sw.js")
       .then((registration) => {
         setSwReg(registration);
+
         console.log(
           "🔥 Service Worker registration successful with scope: ",
           registration.scope,
@@ -39,7 +40,6 @@ export default function PwaToDoPage() {
       swReg.showNotification("PWA Notification!", options);
     }
   }
-
   return (
     <Container
       maxWidth={"sm"}

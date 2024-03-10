@@ -1,14 +1,14 @@
 const cacheName = "v1";
 
-const urlsToCache = ["/next.svg", "/pwa-todo"];
-self.addEventListener("install", (event) => {
-  console.log("service worker installed");
-  event.waitUntil(
-    caches.open("pwa-assets").then((cache) => {
-      return cache.addAll(urlsToCache);
-    }),
-  );
-});
+// const urlsToCache = ["/next.svg", "/pwa-todo"];
+// self.addEventListener("install", (event) => {
+//   console.log("service worker installed");
+//   event.waitUntil(
+//     caches.open("pwa-assets").then((cache) => {
+//       return cache.addAll(urlsToCache);
+//     }),
+//   );
+// });
 
 self.addEventListener("activate", () => {
   console.log("service worker activated");
@@ -72,19 +72,17 @@ self.addEventListener("sync", (event) => {
   }
 });
 
-// Register event listener for the 'push' event.
-self.addEventListener("push", function (event) {
-  // Retrieve the textual payload from event.data (a PushMessageData object).
-  // Other formats are supported (ArrayBuffer, Blob, JSON), check out the documentation
-  // on https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData.
-  const payload = event.data ? event.data.text() : "no payload";
+function periodicCheck() {
+  navigator.serviceWorker.ready
+    .then(async (registration) => {
+      const options = {
+        body: "오늘의 할 일 잊지 마세요.",
+        icon: "/app-icon/ios/192.png",
+      };
+      registration.showNotification("🔔 PWA TODO", options);
+    })
+    .catch((e) => console.error(e));
+}
 
-  // Keep the service worker alive until the notification is created.
-  event.waitUntil(
-    // Show a notification with title 'ServiceWorker Cookbook' and use the payload
-    // as the body.
-    self.registration.showNotification("ServiceWorker Cookbook", {
-      body: payload,
-    }),
-  );
-});
+// 1분마다 알려야 할 알림이 있는지 체크
+setInterval(periodicCheck, 60 * 1000);
