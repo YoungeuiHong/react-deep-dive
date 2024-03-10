@@ -23,18 +23,7 @@ export default function NavigationBar() {
   };
 
   return (
-    <Paper
-      sx={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        width: "100%",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        pb: isStandalone ? 3 : 0,
-      }}
-    >
+    <StyledNavigationPaper isStandalone={isStandalone}>
       <StyledBottomNavigation
         value={tab}
         onChange={handleChange}
@@ -67,6 +56,6 @@ export default function NavigationBar() {
           onClick={() => router.push("/setting")}
         />
       </StyledBottomNavigation>
-    </Paper>
+    </StyledNavigationPaper>
   );
 }
