@@ -8,10 +8,13 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import { useRouter } from "next/navigation";
 import { grey, red } from "@mui/material/colors";
+import { useMediaQuery } from "@mui/system";
 
 export default function NavigationBar() {
   const router = useRouter();
   const [value, setValue] = useState("home");
+
+  const isStandalone = useMediaQuery("(display-mode:standalone)");
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue);
@@ -28,6 +31,7 @@ export default function NavigationBar() {
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
+        pb: isStandalone ? 3 : 0,
       }}
     >
       <BottomNavigation
