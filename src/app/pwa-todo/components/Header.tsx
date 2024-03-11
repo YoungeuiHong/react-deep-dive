@@ -9,7 +9,7 @@ export default function Header() {
   const [alertGranted, setAlertGranted] = useState<boolean>();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && Notification) {
       setAlertGranted(Notification.permission === "granted");
     }
   }, [Notification.permission]);
