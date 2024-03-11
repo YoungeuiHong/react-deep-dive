@@ -12,7 +12,7 @@ export default function Header() {
     if (typeof window !== "undefined" && Notification) {
       setAlertGranted(Notification.permission === "granted");
     }
-  }, [Notification.permission]);
+  }, []);
 
   return (
     <Stack
