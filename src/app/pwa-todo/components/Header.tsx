@@ -9,10 +9,23 @@ export default function Header() {
   const [alertGranted, setAlertGranted] = useState<boolean>();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && Notification) {
+    if (typeof window !== "undefined" && "Notification" in window) {
       setAlertGranted(Notification.permission === "granted");
     }
   }, []);
+
+  // Notification 허용 버튼 클릭 시
+  const onClickAlert = () => {
+    if ("Notification" in window) {
+      Notification.requestPermission().then((result) => {
+        if (result === "granted") {
+          setAlertGranted(true);
+        } else if (result === "denied") {
+          setAlertGranted(false);
+        }
+      });
+    }
+  };
 
   return (
     <Stack
@@ -24,17 +37,7 @@ export default function Header() {
       <Typography variant={"h5"} color={grey["800"]} sx={{ fontWeight: "800" }}>
         TODO
       </Typography>
-      <IconButton
-        onClick={() => {
-          Notification.requestPermission().then((result) => {
-            if (result === "granted") {
-              setAlertGranted(true);
-            } else if (result === "denied") {
-              setAlertGranted(false);
-            }
-          });
-        }}
-      >
+      <IconButton onClick={onClickAlert}>
         {alertGranted ? (
           <NotificationsNoneOutlinedIcon />
         ) : (
