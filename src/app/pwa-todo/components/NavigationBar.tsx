@@ -23,7 +23,7 @@ export default function NavigationBar() {
   };
 
   return (
-    <StyledNavigationPaper isStandalone={isStandalone}>
+    <StyledNavigationPaper sx={{ pb: isStandalone ? 3 : 0 }}>
       <StyledBottomNavigation
         value={tab}
         onChange={handleChange}
