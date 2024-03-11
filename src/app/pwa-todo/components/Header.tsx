@@ -3,12 +3,16 @@ import { IconButton, Stack, Typography } from "@mui/material";
 import { grey } from "@mui/material/colors";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import NotificationsOffOutlinedIcon from "@mui/icons-material/NotificationsOffOutlined";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Header() {
-  const [alertGranted, setAlertGranted] = useState<boolean>(
-    Notification.permission === "granted",
-  );
+  const [alertGranted, setAlertGranted] = useState<boolean>();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAlertGranted(Notification.permission === "granted");
+    }
+  }, [Notification.permission]);
 
   return (
     <Stack
