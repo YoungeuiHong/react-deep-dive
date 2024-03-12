@@ -1,5 +1,5 @@
 import { sql } from "@vercel/postgres";
-import { PushSubscription } from "@/app/pwa-todo/types";
+import { SubscriptionInfo } from "@/app/pwa-todo/types";
 
 export async function POST(req: Request) {
   const { subscription } = await req.json();
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const data = await sql<PushSubscription>`
+  const data = await sql<SubscriptionInfo>`
     SELECT *
     FROM pwa_subscription
     ORDER BY id

@@ -39,10 +39,11 @@ export default function Header() {
 
           const subscription = await registration?.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlB64ToUint8Array(
-              process.env.VAPID_PUBLIC_KEY ?? "",
-            ),
+            applicationServerKey:
+              process.env.VAPID_PUBLIC_KEY ??
+              "BCwcX6sPcH0vuFZ97UAvziamP9qMo0qV2c5uns_YwHTp6XQKXdFDTgH9fD3hBr9oQVmO4kh7oS7HZyg-czft0Pc",
           });
+
           axios
             .post("/api/subscribe", {
               subscription,

@@ -15,7 +15,7 @@ export interface UpdateToDoInput {
   done: boolean;
 }
 
-export interface PushSubscription {
+export interface SubscriptionInfo {
   id: number;
   subscription: string;
 }

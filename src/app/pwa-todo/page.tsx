@@ -5,12 +5,11 @@ import ToDoBox from "@/app/pwa-todo/components/ToDoBox";
 import { getAllToDo } from "@/app/pwa-todo/action";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { PushSubscription, ToDo } from "@/app/pwa-todo/types";
+import { SubscriptionInfo, ToDo } from "@/app/pwa-todo/types";
 import NavigationBar from "@/app/pwa-todo/components/NavigationBar";
 import Header from "@/app/pwa-todo/components/Header";
 import axios from "axios";
 import { Button } from "@mui/material";
-import webpush from "web-push";
 
 export default function PwaToDoPage() {
   useEffect(() => {
@@ -79,7 +78,7 @@ export default function PwaToDoPage() {
   }
 
   const pushNotification = async () => {
-    const subscriptions: PushSubscription[] = await axios
+    const subscriptions = await axios
       .get("/api/subscribe")
       .then((response) => response.data);
 
@@ -88,23 +87,29 @@ export default function PwaToDoPage() {
     for (let i = 0; i < subscriptions.length; i++) {
       const subscription = subscriptions[i];
       promiseChain = promiseChain.then(() => {
-        return triggerPushMsg(subscription, "알림 테스트!!!");
+        return triggerPushMsg(
+          subscription,
+          "🔔 TODO",
+          "오늘의 할 일 잊지 마세요!",
+        );
       });
     }
 
     return promiseChain;
   };
 
-  const triggerPushMsg = function (subscription, dataToSend) {
-    webpush.setVapidDetails(
-      process.env.VAPID_SUBJECT ?? "mailto:dev.yehong@gmail.com",
-      process.env.VAPID_PUBLIC_KEY ??
-        "BCwcX6sPcH0vuFZ97UAvziamP9qMo0qV2c5uns_YwHTp6XQKXdFDTgH9fD3hBr9oQVmO4kh7oS7HZyg-czft0Pc",
-      process.env.VAPID_PRIVATE_KEY ??
-        "YFZJr1aOS3OjGhY1a_7bxaRUIvw5azZCd2VcgEKNwOM",
-    );
-
-    return webpush.sendNotification(subscription, dataToSend);
+  const triggerPushMsg = async function (
+    pushSubscription: SubscriptionInfo,
+    title: string,
+    message: string,
+  ) {
+    await axios
+      .post("/api/send-message", {
+        pushSubscription: pushSubscription.subscription,
+        title,
+        message,
+      })
+      .catch((e) => console.error(e));
   };
 
   return (
