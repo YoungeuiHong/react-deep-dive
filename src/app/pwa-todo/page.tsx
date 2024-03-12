@@ -5,23 +5,28 @@ import ToDoBox from "@/app/pwa-todo/components/ToDoBox";
 import { getAllToDo } from "@/app/pwa-todo/action";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ToDo } from "@/app/pwa-todo/types";
+import { PushSubscription, ToDo } from "@/app/pwa-todo/types";
 import NavigationBar from "@/app/pwa-todo/components/NavigationBar";
 import Header from "@/app/pwa-todo/components/Header";
+import axios from "axios";
+import { Button } from "@mui/material";
+import webpush from "web-push";
 
 export default function PwaToDoPage() {
   useEffect(() => {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((registration) => {
-        console.log(
-          "🔥 Service Worker registration successful with scope: ",
-          registration.scope,
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log(
+            "Service Worker registration successful with scope: ",
+            registration.scope,
+          );
+        })
+        .catch((err) =>
+          console.error("Service Worker registration failed: ", err),
         );
-      })
-      .catch((err) =>
-        console.error("Service Worker registration failed: ", err),
-      );
+    }
   }, []);
 
   const { data: toDos } = useQuery({
@@ -73,12 +78,42 @@ export default function PwaToDoPage() {
     };
   }
 
+  const pushNotification = async () => {
+    const subscriptions: PushSubscription[] = await axios
+      .get("/api/subscribe")
+      .then((response) => response.data);
+
+    let promiseChain = Promise.resolve();
+
+    for (let i = 0; i < subscriptions.length; i++) {
+      const subscription = subscriptions[i];
+      promiseChain = promiseChain.then(() => {
+        return triggerPushMsg(subscription, "알림 테스트!!!");
+      });
+    }
+
+    return promiseChain;
+  };
+
+  const triggerPushMsg = function (subscription, dataToSend) {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT ?? "mailto:dev.yehong@gmail.com",
+      process.env.VAPID_PUBLIC_KEY ??
+        "BCwcX6sPcH0vuFZ97UAvziamP9qMo0qV2c5uns_YwHTp6XQKXdFDTgH9fD3hBr9oQVmO4kh7oS7HZyg-czft0Pc",
+      process.env.VAPID_PRIVATE_KEY ??
+        "YFZJr1aOS3OjGhY1a_7bxaRUIvw5azZCd2VcgEKNwOM",
+    );
+
+    return webpush.sendNotification(subscription, dataToSend);
+  };
+
   return (
     <Container
       maxWidth={"sm"}
       sx={{ backgroundColor: grey["100"], height: "100vh", pt: 4 }}
     >
       <Header />
+      <Button onClick={pushNotification}>Push!</Button>
       {toDos && <ToDoBox toDos={toDos} />}
       <NavigationBar />
     </Container>

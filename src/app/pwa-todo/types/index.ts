@@ -14,3 +14,8 @@ export interface UpdateToDoInput {
   id: number;
   done: boolean;
 }
+
+export interface PushSubscription {
+  id: number;
+  subscription: string;
+}
