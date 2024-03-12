@@ -16,7 +16,21 @@ const nextConfig = {
         VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY,
         VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
         VAPID_SUBJECT: process.env.VAPID_SUBJECT,
-    }
+    },
+    webpack: (config, { isServer }) => {
+        if (!isServer) {
+            config.resolve = {
+                ...config.resolve,
+                fallback: {
+                    net: false,
+                    tls: false,
+                }
+            };
+        }
+        config.module.exprContextCritical = false;
+
+        return config;
+    },
 };
 
 export default nextConfig;
