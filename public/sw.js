@@ -104,14 +104,10 @@ function periodicCheck() {
 setInterval(periodicCheck, 60 * 1000);
 
 self.addEventListener("push", function (event) {
-  console.log("[Service Worker] Push Received.");
-  console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
-
-  const title = "Push Codelab";
+  const { title, message } = event.data.json();
   const options = {
-    body: "Yay it works.",
+    body: message,
     icon: "/app-icon/ios/192.png",
   };
-
   event.waitUntil(self.registration.showNotification(title, options));
 });
