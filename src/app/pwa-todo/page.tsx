@@ -77,48 +77,12 @@ export default function PwaToDoPage() {
     };
   }
 
-  const pushNotification = async () => {
-    const subscriptions = await axios
-      .get("/api/subscribe")
-      .then((response) => response.data);
-
-    let promiseChain = Promise.resolve();
-
-    for (let i = 0; i < subscriptions.length; i++) {
-      const subscription = subscriptions[i];
-      promiseChain = promiseChain.then(() => {
-        return triggerPushMsg(
-          subscription,
-          "🔔 TODO",
-          "오늘의 할 일 잊지 마세요!",
-        );
-      });
-    }
-
-    return promiseChain;
-  };
-
-  const triggerPushMsg = async function (
-    pushSubscription: SubscriptionInfo,
-    title: string,
-    message: string,
-  ) {
-    await axios
-      .post("/api/send-message", {
-        pushSubscription: pushSubscription.subscription,
-        title,
-        message,
-      })
-      .catch((e) => console.error(e));
-  };
-
   return (
     <Container
       maxWidth={"sm"}
       sx={{ backgroundColor: grey["100"], height: "100vh", pt: 4 }}
     >
       <Header />
-      <Button onClick={pushNotification}>Push!</Button>
       {toDos && <ToDoBox toDos={toDos} />}
       <NavigationBar />
     </Container>

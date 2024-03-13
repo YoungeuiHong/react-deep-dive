@@ -1,19 +1,24 @@
 import webPush, { PushSubscription } from "web-push";
 
 export async function POST(req: Request) {
-  const { pushSubscription, title, message, delay = 3 } = await req.json();
+  const { pushSubscription, title, message } = await req.json();
   const subscription = JSON.parse(pushSubscription) as PushSubscription;
   const payload = JSON.stringify({ title, message });
 
+  if (
+    !process.env.VAPID_SUBJECT ||
+    !process.env.VAPID_PUBLIC_KEY ||
+    !process.env.VAPID_PRIVATE_KEY
+  ) {
+    console.error("VAPID key 정보가 없습니다.");
+    return Response.error();
+  }
+
   const options = {
     vapidDetails: {
-      subject: "mailto:example_email@example.com",
-      publicKey:
-        process.env.VAPID_PUBLIC_KEY ??
-        "BCwcX6sPcH0vuFZ97UAvziamP9qMo0qV2c5uns_YwHTp6XQKXdFDTgH9fD3hBr9oQVmO4kh7oS7HZyg-czft0Pc",
-      privateKey:
-        process.env.VAPID_PRIVATE_KEY ??
-        "YFZJr1aOS3OjGhY1a_7bxaRUIvw5azZCd2VcgEKNwOM",
+      subject: process.env.VAPID_SUBJECT,
+      publicKey: process.env.VAPID_PUBLIC_KEY,
+      privateKey: process.env.VAPID_PRIVATE_KEY,
     },
     TTL: 60,
   };
@@ -24,10 +29,9 @@ export async function POST(req: Request) {
       payload,
       options,
     );
-    console.log("notification sent", response);
     return Response.json(response);
   } catch (error) {
-    console.log("notification error", error);
+    console.error("notification error", error);
     return Response.error();
   }
 }
