@@ -1,0 +1,19 @@
+.move {
+    animation: moveRightAndLeft linear infinite;
+    animation-duration: 3s;
+}
+
+@keyframes moveRightAndLeft {
+    0%{
+        opacity: 1;
+        transform: translateX(0);
+    }
+    10% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
