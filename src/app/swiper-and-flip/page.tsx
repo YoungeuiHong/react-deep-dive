@@ -1,5 +1,5 @@
 "use client";
-import type { MouseEvent, TouchEvent, UIEvent } from "react";
+import type { MouseEvent, TouchEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 type SwipeStatus =
@@ -8,13 +8,28 @@ type SwipeStatus =
   | "SWIPE left"
   | "TO RIGHT"
   | "TO LEFT"
+  | "FLIP right"
+  | "FLIP left"
   | "CANCEL";
+
+const keyFrames = [
+  { transform: "translateX(0%)", opacity: 1, offset: 0 },
+  { transform: "translateX(100%)", opacity: 0, offset: 1 },
+];
+
+const options: KeyframeAnimationOptions = {
+  duration: 300,
+  fill: "backwards",
+  iterations: 1,
+};
 
 const GestureRecognizer = () => {
   const frontCardRef = useRef<HTMLDivElement | null>(null);
   const isDraggingRef = useRef<boolean>(false);
   const intervalRef = useRef<number | null>(null); // intervalId를 저장하기 위한 ref
 
+  const [isMoved, setIsMoved] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [width, setWidth] = useState(0);
   const [boundingX, setBoundingX] = useState<number>(0);
   const [initialX, setInitialX] = useState<number>(0);
@@ -24,10 +39,8 @@ const GestureRecognizer = () => {
   const [cardIndex, setCardIndex] = useState(0);
   const [description, setDescription] =
     useState<SwipeStatus>("AUTO TRANSITION");
-
-  const [hovered, setHovered] = useState<boolean>(false); // 추가: 호버 상태 추적
-  const [animation, setAnimation] = useState<Animation | null>(null);
-  const [transitionOffset, setTransitionOffset] = useState(0);
+  const [startTime, setStartTime] = useState<number>(0);
+  const [currentTime, setCurrentTime] = useState<number>(0);
   const [transitionOpacity, setTransitionOpacity] = useState(1);
 
   useEffect(() => {
@@ -51,54 +64,39 @@ const GestureRecognizer = () => {
   }, []);
 
   useEffect(() => {
-    if (!frontCardRef.current) {
-      return;
-    }
-
-    const keyFrameEffect = new KeyframeEffect(
-      frontCardRef.current,
-      [
-        { transform: "translateX(0%)", opacity: 1, offset: 0 },
-        { transform: "translateX(100%)", opacity: 0, offset: 0.1 },
-        { transform: "translateX(100%)", opacity: 0, offset: 1 },
-      ],
-      {
-        duration: 3000,
-        fill: "forwards",
-        easing: "linear",
-        iterations: Infinity,
-      },
-    );
-
-    let animation: Animation = new Animation(keyFrameEffect);
-    setAnimation(animation);
-
     function changeCard() {
-      if (isDraggingRef.current) {
-        animation.cancel();
-        return;
-      }
-
       setDescription("AUTO TRANSITION");
-      if (animation.playState !== "running") {
-        animation.play();
-      } else {
-        setCardIndex((prev) => (prev + 1) % 4);
+      if (frontCardRef.current) {
+        const animation = frontCardRef.current.animate(keyFrames, options);
+        animation.onfinish = (event) => {
+          setCardIndex((prev) => (prev + 1) % 4);
+        };
       }
     }
 
-    intervalRef.current = window.setInterval(changeCard, 3000);
+    if (isDragging) {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+      }
+    } else {
+      intervalRef.current = window.setInterval(changeCard, 3000);
+    }
 
     return () => {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+        window.clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [isDragging]);
 
   function handleGestureStart(event: MouseEvent | TouchEvent) {
     event.preventDefault();
+    // event.stopPropagation();
+    if (isDragging) return;
+
     isDraggingRef.current = true;
+    setIsDragging(true);
+    setStartTime(event.timeStamp);
 
     const xPoint = getGestureXPointFromEvent(event);
     setInitialX(xPoint);
@@ -106,9 +104,16 @@ const GestureRecognizer = () => {
 
   function handleGestureMove(event: MouseEvent | TouchEvent) {
     event.preventDefault();
+    // event.stopPropagation();
 
+    if (!isDragging) return;
+
+    setIsMoved(true);
+
+    console.log("move move");
     const xPoint = getGestureXPointFromEvent(event);
     setCurrentX(xPoint);
+    setCurrentTime(event.timeStamp);
 
     window.requestAnimationFrame(onAnimFrame);
   }
@@ -120,28 +125,84 @@ const GestureRecognizer = () => {
 
     const differenceInX = currentX - initialX;
     setTranslateX(differenceInX);
-    setTransitionOffset(currentX);
+    // setTransitionOffset(currentX);
     setTransitionOpacity(1 - Math.abs(differenceInX) / width);
     setDescription(differenceInX > 0 ? "SWIPE right" : "SWIPE left");
   }
 
-  function handleGestureEnd() {
+  function handleGestureEnd(event: MouseEvent | TouchEvent) {
+    event.preventDefault();
+
+    if (!isDragging) return;
+
+    if (!isMoved) {
+      event.stopPropagation();
+      setTranslateX(0);
+      // setTransitionOffset(0);
+      setTransitionOpacity(1);
+      isDraggingRef.current = false;
+      setIsDragging(false);
+      setIsMoved(false);
+      alert(`CLICK: ${arr[cardIndex]}`);
+      return;
+    }
+
+    setCurrentTime(event.timeStamp);
     if (Math.abs(currentX - initialX) / width >= 0.5) {
-      setCardIndex((prev) => (prev + 1) % 4);
-      setDescription(currentX - initialX > 0 ? "TO RIGHT" : "TO LEFT");
+      const animation = frontCardRef.current?.animate(
+        [
+          {
+            transform: `translateX(${translateX}px)`,
+            opacity: transitionOpacity,
+          },
+          {
+            transform: `translateX(${translateX > 0 ? "100%" : "-100%"})`,
+            opacity: 0,
+          },
+        ],
+        300,
+      );
+      animation.onfinish = (event) => {
+        setCardIndex((prev) => (prev + 1) % 4);
+        setDescription(currentX - initialX > 0 ? "TO RIGHT" : "TO LEFT");
+      };
     } else {
-      setDescription("CANCEL");
+      const velocity =
+        Math.abs(currentX - initialX) / (event.timeStamp - startTime);
+      console.log("velocity: ", velocity);
+      if (velocity >= 0.2) {
+        const animation = frontCardRef.current?.animate(
+          [
+            {
+              transform: `translateX(${translateX}px)`,
+              opacity: transitionOpacity,
+            },
+            {
+              transform: `translateX(${translateX > 0 ? "100%" : "-100%"})`,
+              opacity: 0,
+            },
+          ],
+          300,
+        );
+        animation.onfinish = (event) => {
+          setCardIndex((prev) => (prev + 1) % 4);
+          setDescription(currentX - initialX > 0 ? "FLIP right" : "FLIP left");
+        };
+      } else {
+        setDescription("CANCEL");
+      }
     }
 
     setTranslateX(0);
-    setTransitionOffset(0);
+    // setTransitionOffset(0);
     setTransitionOpacity(1);
     isDraggingRef.current = false;
+    setIsDragging(false);
+    setIsMoved(false);
   }
 
   const handleMouseLeave = (event: MouseEvent) => {
-    if (isDraggingRef.current) return;
-    handleGestureEnd();
+    handleGestureEnd(event);
   };
 
   function getGestureXPointFromEvent(event: MouseEvent | TouchEvent) {
@@ -187,12 +248,12 @@ const GestureRecognizer = () => {
             color: "white",
             borderRadius: "4px",
             touchAction: "none",
-            zIndex: 1,
+            zIndex: 100,
           }}
         >
           <div
             className="card-inner"
-            style={{ textAlign: "center", display: "block", width: "100%" }}
+            style={{ textAlign: "center", fontWeight: 900, width: "100%" }}
           >
             {arr[(cardIndex + 1) % 4]}
           </div>
@@ -214,15 +275,15 @@ const GestureRecognizer = () => {
             touchAction: "none",
             transform: `translateX(${translateX}px)`,
             opacity: transitionOpacity,
-            zIndex: 2,
+            zIndex: 200,
           }}
         >
-          <div
+          <p
             className="card-inner"
-            style={{ textAlign: "center", display: "block", width: "100%" }}
+            style={{ textAlign: "center", width: "100%" }}
           >
             {arr[cardIndex]}
-          </div>
+          </p>
         </div>
         <div
           className="gesture-recognizer"
@@ -233,8 +294,8 @@ const GestureRecognizer = () => {
             width: "100%",
             height: "100%",
             touchAction: "none",
-            cursor: isDraggingRef.current ? "grabbing" : "grab",
-            zIndex: 3,
+            cursor: "pointer",
+            zIndex: 300,
           }}
           onTouchStart={handleGestureStart}
           onTouchMove={handleGestureMove}
@@ -242,7 +303,7 @@ const GestureRecognizer = () => {
           onMouseDown={handleGestureStart}
           onMouseMove={handleGestureMove}
           onMouseUp={handleGestureEnd}
-          onMouseLeave={handleMouseLeave}
+          onMouseLeave={handleGestureEnd}
         />
       </div>
     </div>
