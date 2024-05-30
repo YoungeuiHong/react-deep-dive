@@ -44,7 +44,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoRef.current.srcObject = stream;
-        // videoRef.current.play();
+        videoRef.current.play();
       }
     } catch (error) {
       console.error("Error accessing the camera", error);
@@ -76,6 +76,9 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
       <video
         ref={videoRef}
         style={{ width: "100%", height: "auto", transform: "scaleX(-1)" }}
+        autoPlay
+        playsInline
+        muted
       />
       <canvas
         ref={canvasRef}
