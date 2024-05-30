@@ -39,7 +39,7 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
       if (videoRef.current) {
         const constraints = {
           video: {
-            deviceId: deviceId ? { exact: deviceId } : undefined,
+            facingMode: { exact: "environment" }, // 후면 카메라를 지정
           },
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
