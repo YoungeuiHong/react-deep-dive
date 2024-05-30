@@ -1,95 +1,34 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 
 interface CameraComponentProps {
-  onCapture: (blob: Blob) => void;
+  onCapture: (file: File) => void;
 }
 
 const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(
-          (device) => device.kind === "videoinput",
-        );
-        setDevices(videoDevices);
-
-        // 후면 카메라 장치를 자동으로 선택
-        const backCamera = videoDevices.find((device) =>
-          device.label.toLowerCase().includes("back"),
-        );
-        setSelectedDeviceId(
-          backCamera ? backCamera.deviceId : videoDevices[0]?.deviceId,
-        );
-      } catch (error) {
-        console.error("Error getting media devices", error);
-      }
-    };
-
-    getDevices();
-  }, []);
-
-  const startCamera = async (deviceId: string | null) => {
-    try {
-      if (videoRef.current) {
-        const constraints = {
-          video: {
-            facingMode: { exact: "environment" }, // 후면 카메라를 지정
-          },
-        };
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-    } catch (error) {
-      console.error("Error accessing the camera", error);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onCapture(file);
     }
   };
 
-  const capturePhoto = () => {
-    if (canvasRef.current && videoRef.current) {
-      const context = canvasRef.current.getContext("2d");
-      if (context) {
-        context.drawImage(
-          videoRef.current,
-          0,
-          0,
-          canvasRef.current.width,
-          canvasRef.current.height,
-        );
-        canvasRef.current.toBlob((blob) => {
-          if (blob) {
-            onCapture(blob);
-          }
-        }, "image/jpeg");
-      }
-    }
+  const openCamera = () => {
+    fileInputRef.current?.click();
   };
 
   return (
     <div>
-      <video
-        ref={videoRef}
-        style={{ width: "100%", height: "auto", transform: "scaleX(-1)" }}
-        autoPlay
-        playsInline
-        muted
-      />
-      <canvas
-        ref={canvasRef}
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        ref={fileInputRef}
         style={{ display: "none" }}
-        width="640"
-        height="480"
+        onChange={handleFileChange}
       />
-      <button onClick={() => startCamera(selectedDeviceId)}>
-        Start Camera
-      </button>
-      <button onClick={capturePhoto}>Capture Photo</button>
+      <button onClick={openCamera}>Open Camera</button>
     </div>
   );
 };
